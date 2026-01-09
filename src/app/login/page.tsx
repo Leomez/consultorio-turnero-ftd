@@ -2,24 +2,35 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiClient } from "@/lib/api";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    // ⚠️ Temporal: validación simple (luego reemplazamos por API call)
-    if (email === "admin@consultorio.com" && password === "123456") {
-      document.cookie = "token=fake-token; path=/; max-age=3600"; // 1 hora
+    try {
+      await apiClient.login({ email, password });
       router.push("/");
-    } else {
-      setError("Credenciales inválidas");
+      router.refresh();
+    } catch (err) {     
+      const message = err instanceof Error ? err.message : "Error al iniciar sesión";
+      setError(message);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleRegisterClick = () => {
+    router.push("/register");
   };
 
   return (
@@ -35,7 +46,8 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="tu@email.com"
               required
             />
@@ -47,7 +59,8 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="••••••"
               required
             />
@@ -59,12 +72,21 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Entrar
+            {loading ? "Iniciando sesión..." : "Entrar"}
           </button>
         </form>
-      </div>
-    </div>
+
+        <div className="text-center text-sm mt-4">
+          <span className="text-gray-600">¿No tienes cuenta? </span>
+          <Link href="/register" className="text-blue-600 hover:underline font-medium">
+            Regístrate aquí
+          </Link>
+        </div>
+
+      </div >
+    </div>    
   );
 }

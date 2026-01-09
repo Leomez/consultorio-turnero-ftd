@@ -3,26 +3,36 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
+    console.log(pathname);
     
+
     // Rutas públicas que no requieren autenticación
-    const publicPaths = ['/login', '/api', '/_next', '/favicon.ico'];
-    
+    const publicPaths = ['/login', '/register', '/_next', '/favicon.ico'];
+
     // Verificar si la ruta actual es pública
     const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
-    
+
     if (isPublicPath) {
         return NextResponse.next();
     }
 
-    // Verificar token
-    const token = request.cookies.get('token')?.value;
+    // Comprobar cookie HttpOnly de refresh token que establece el backend
+    const token = request.cookies.get('refresh_token')?.value;
 
-    // Si no hay token, redirigir al login
     if (!token) {
         const loginUrl = new URL('/login', request.url);
+        // loginUrl.searchParams.set('next', pathname);
         return NextResponse.redirect(loginUrl);
     }
+    
 
+    // En el middleware del servidor, no podemos acceder a localStorage
+    // Por eso usamos la cookie del navegador como fallback
+    // Los tokens se guardan en localStorage en el cliente
+    
+    // Si llegó aquí sin token, debería ir al login
+    // El cliente (useAuth) manejará la validación real del token
+    
     return NextResponse.next();
 }
 
