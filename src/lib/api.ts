@@ -147,7 +147,7 @@ class ApiClient {
     if (typeof window !== 'undefined') {
       // Limpiar token en memoria y datos de usuario
       this.accessToken = null;
-      localStorage.removeItem('access_token');
+      localStorage.removeItem('token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('user');
     }
@@ -178,6 +178,8 @@ class ApiClient {
     if (typeof window !== 'undefined') {
       // Guardar access_token en memoria; refresh_token se guarda como HttpOnly cookie por backend
       this.accessToken = response.access_token;
+      console.log(response);
+      
       localStorage.setItem('user', JSON.stringify(response.user));
     }
   }
@@ -185,6 +187,7 @@ class ApiClient {
   getUser() {
     if (typeof window === 'undefined') return null;
     const user = localStorage.getItem('user');
+    console.log(user ? JSON.parse(user) : null);    
     return user ? JSON.parse(user) : null;
   }
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
     console.log(pathname);
     
@@ -16,24 +16,53 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
+    const loginUrl = new URL('/login', request.url);
+
     // Comprobar cookie HttpOnly de refresh token que establece el backend
     const token = request.cookies.get('refresh_token')?.value;
 
     if (!token) {
-        const loginUrl = new URL('/login', request.url);
-        // loginUrl.searchParams.set('next', pathname);
         return NextResponse.redirect(loginUrl);
     }
-    
 
-    // En el middleware del servidor, no podemos acceder a localStorage
-    // Por eso usamos la cookie del navegador como fallback
-    // Los tokens se guardan en localStorage en el cliente
+    // Validar el token con el backend
+
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || request.nextUrl.origin;
+
+    try {
+        const resp = await fetch(`${API_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Envia la cookie HttpOnly al backend para verificar
+                'Cookie': `refresh_token=${token}`,
+            },
+        });
+
+        if (!resp.ok) {
+            //si no se puede refrescar, limpiar la cookie en el servidor y redirigir al login
+            const response = NextResponse.redirect(loginUrl);
+            response.cookies.set('refresh_token', '', { 
+                maxAge: 0, 
+                path: '/',
+                httpOnly: true,
+                sameSite: 'lax',
+            });
+            return response; 
+        }
+        //Si resp.ok, el token es válido, continuar
+        return NextResponse.next();
+    } catch (error) {
+        const response = NextResponse.redirect(loginUrl);
+        response.cookies.set('refresh_token', '', { 
+            maxAge: 0,
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax',
+        });
+        return response; 
+    }  
     
-    // Si llegó aquí sin token, debería ir al login
-    // El cliente (useAuth) manejará la validación real del token
-    
-    return NextResponse.next();
 }
 
 export const config = {

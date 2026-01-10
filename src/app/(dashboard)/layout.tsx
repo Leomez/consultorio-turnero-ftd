@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/router";
 import { Menu, X } from "lucide-react";
+import { apiClient } from "@/lib/api";
 
 
 const navItems = [
@@ -14,9 +16,30 @@ const navItems = [
   { href: "/pagos", label: "PAGOS" },
 ]
 
+
+
 export default function dashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  
   const [siderbarOpen, setSidebarOpen] = useState(false);
+  
+  const handleLogout = useCallback(async () => {
+    try {// Llamar al endpoint de logout
+      await apiClient.logout();
+    } catch (error) {
+      console.error("Error during logout:", error);
+    } finally {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/login';
+      }
+      
+    }
+  }, []);
+  
+
   return (
     <div className="flex w-full h-full">
       {/* Sidebar */}
@@ -40,10 +63,7 @@ export default function dashboardLayout({ children }: { children: React.ReactNod
           </ul>
         </nav>
         <button
-          onClick={() => {
-            document.cookie = "token=; path=/; max-age=0"; // eliminar cookie
-            window.location.href = "/login";
-          }}
+          onClick={handleLogout}
           className="text-sm bg-blue-600 block px-3 py-2 rounded-md absolute bottom-4
         left-4 text-white font-bold hover:bg-blue-700 transition-colors"
         >
@@ -104,10 +124,7 @@ export default function dashboardLayout({ children }: { children: React.ReactNod
               </ul>
             </nav>
             <button
-              onClick={() => {
-                document.cookie = "token=; path=/; max-age=0"; // eliminar cookie
-                window.location.href = "/login";
-              }}
+              onClick={handleLogout}
               className="text-sm bg-blue-600 block px-3 py-2 rounded-md absolute bottom-4
               left-4 text-white font-bold hover:bg-blue-700 transition-colors"
             >

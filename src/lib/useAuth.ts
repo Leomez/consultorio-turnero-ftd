@@ -20,6 +20,8 @@ export function useAuth() {
     // Al cargar la app, intentar refrescar access token usando cookie HttpOnly
     (async () => {
       const storedUser = apiClient.getUser();
+      console.log('el usuario en este momenteo es: ' + storedUser);
+      
       if (storedUser) {
         setUser(storedUser);
       }
