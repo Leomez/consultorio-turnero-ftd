@@ -2,36 +2,29 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiClient } from "@/lib/api";
+import { useAuth } from "@/lib/useAuth";
 import Link from "next/link";
 
 export default function LoginPage() {
+  const { login, loading, error } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
+    
     try {
-      await apiClient.login({ email, password });
-      router.push("/");
-      router.refresh();
+      await login(email, password);
     } catch (err) {     
-      const message = err instanceof Error ? err.message : "Error al iniciar sesión";
-      setError(message);
-    } finally {
-      setLoading(false);
+      const message = err instanceof Error ? err.message : "Error al iniciar sesión";     
     }
   };
 
-  const handleRegisterClick = () => {
-    router.push("/register");
-  };
+  // const handleRegisterClick = () => {
+  //   router.push("/register");
+  // };
 
   return (
     <div className="flex items-center justify-around min-h-screen bg-gray-100">

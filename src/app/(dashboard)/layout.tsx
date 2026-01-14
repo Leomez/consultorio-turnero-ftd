@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react";
 import { apiClient } from "@/lib/api";
 
 
+
 const navItems = [
   { href: "/", label: "DASHBOARD" },
   { href: "/pacientes", label: "PACIENTES" },
@@ -64,6 +65,7 @@ export default function dashboardLayout({ children }: { children: React.ReactNod
         </nav>
         <button
           onClick={handleLogout}
+          
           className="text-sm bg-blue-600 block px-3 py-2 rounded-md absolute bottom-4
         left-4 text-white font-bold hover:bg-blue-700 transition-colors"
         >

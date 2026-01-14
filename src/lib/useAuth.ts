@@ -52,6 +52,8 @@ export function useAuth() {
     try {
       const response = await apiClient.login({ email, password });
       setUser(response.user);
+      router.push('/');
+      router.refresh();
       return response;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al iniciar sesión';
