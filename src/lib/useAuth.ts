@@ -94,6 +94,9 @@ export function useAuth() {
   const logout = async () => {
     await apiClient.logout();
     setUser(null);
+    localStorage.removeItem('user');
+    // localStorage.removeItem('access_token');
+    // localStorage.removeItem('refresh_token');
     router.push('/login');
   };
 

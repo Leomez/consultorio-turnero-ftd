@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "./providers/AuthProvider";
 import "./globals.css";
 
 
 
 
 export const metadata: Metadata = {
-  title:  "Consultorio Odontológico",
+  title: "Consultorio Odontológico",
   description: "Sistema de gestión para consultorios odontológicos",
 };
 
@@ -14,13 +15,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (   
+  return (
     <html lang="es">
-      <body
-        className={`antialiased flex h-screen bg-gray-100 text-gray-900`}
-      >
-        {children}
+      <body className={`antialiased flex h-screen bg-gray-100 text-gray-900`}>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
-    </html>  
+    </html>
   );
 }
