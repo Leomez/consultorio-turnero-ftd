@@ -30,6 +30,9 @@
   font-family: Arial, Helvetica, sans-serif;
 } */
 
+* {
+  -webkit-tap-highlight-color: transparent;
+}
 
 html,
 body {

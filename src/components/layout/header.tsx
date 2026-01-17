@@ -1,7 +1,7 @@
 'use client';
 
 import { Menu } from 'lucide-react';
-import { useAuth } from '@/lib/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const { user, logout } = useAuth();

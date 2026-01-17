@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useAuth } from '@/lib/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { loading } = useAuth();
