@@ -18,15 +18,10 @@ export default function PacientesPage() {
   return (
 
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold mb-4">Pacientes</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-          Nuevo Paciente
-        </button>
-        <Suspense fallback={<PacientesListSkeleton />}>
-          <PacientesList />
-        </Suspense>
-      </div>
+      <h1 className="text-2xl font-bold mb-4">Pacientes</h1>
+      <Suspense fallback={<PacientesListSkeleton />}>
+        <PacientesList />
+      </Suspense>
     </div>
 
   );

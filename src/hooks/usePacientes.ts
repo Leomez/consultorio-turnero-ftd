@@ -6,7 +6,7 @@ import { apiClient } from '@/lib/api';
 export interface Paciente {
   id: number;
   nombre: string;
-  email: string;
+  dni: string;
   telefono: string;
   createdAt: string;
 }

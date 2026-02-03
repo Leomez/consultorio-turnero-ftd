@@ -1,4 +1,4 @@
-import { Paciente } from './PacientesList';
+import { Paciente } from '@/hooks/usePacientes';
 
 export function PacienteRow({ paciente }: { paciente: Paciente }) {
   return (
