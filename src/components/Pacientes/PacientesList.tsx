@@ -5,9 +5,10 @@ import { usePacientes } from '@/hooks/usePacientes';
 import { PacientesListSkeleton } from '@/components/skeletons/PacientesListSkeleton';
 
 export function PacientesList() {
-  const { pacientes, loading, error, createPaciente } = usePacientes();
+  const { pacientes, loading, error, createPaciente, updatePaciente, deletePaciente } = usePacientes();
 
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState({
     nombre: '',
     dni: '',
@@ -27,8 +28,15 @@ export function PacientesList() {
 
     try {
       setSubmitting(true);
-      await createPaciente(form);
+
+      if (editingId !== null) {
+        await updatePaciente(editingId, form);
+      } else {
+        await createPaciente(form);
+      }
+
       setForm({ nombre: '', dni: '', telefono: '' });
+      setEditingId(null);
       setShowForm(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al crear paciente';
@@ -60,15 +68,16 @@ export function PacientesList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold">Listado de pacientes</h2>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
         >
           {showForm ? 'Cancelar' : 'Nuevo Paciente'}
         </button>
       </div>
+
 
       {showForm && (
         <form
@@ -124,17 +133,22 @@ export function PacientesList() {
             disabled={submitting}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
           >
-            {submitting ? 'Guardando...' : 'Guardar paciente'}
+            {submitting
+              ? 'Guardando...'
+              : editingId !== null
+                ? 'Actualizar paciente'
+                : 'Guardar paciente'}
           </button>
         </form>
       )}
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 py-2 border-b text-sm font-medium text-gray-500">
+        <div className="hidden md:grid md:grid-cols-5 gap-4 px-4 py-2 border-b text-sm font-medium text-gray-500">
           <div>Nombre</div>
           <div>DNI</div>
-          <div className="hidden md:block">Teléfono</div>
-          <div className="hidden md:block">Alta</div>
+          <div>Teléfono</div>
+          <div>Alta</div>
+          <div className="text-right">Acciones</div>
         </div>
 
         {pacientes.length === 0 ? (
@@ -143,7 +157,24 @@ export function PacientesList() {
           </div>
         ) : (
           pacientes.map((paciente) => (
-            <PacienteRow key={paciente.id} paciente={paciente} />
+            <PacienteRow
+              key={paciente.id}
+              paciente={paciente}
+              onEdit={() => {
+                setEditingId(paciente.id);
+                setForm({
+                  nombre: paciente.nombre,
+                  dni: paciente.dni,
+                  telefono: paciente.telefono,
+                });
+                setShowForm(true);
+              }}
+              onDelete={() => {
+                if (confirm('¿Confirma que desea eliminar este paciente?')) {
+                  deletePaciente(paciente.id);
+                }
+              }}
+            />
           ))
         )}
       </div>

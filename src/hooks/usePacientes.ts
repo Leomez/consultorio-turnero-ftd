@@ -1,15 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { apiClient } from '@/lib/api';
+import { pacientesApi, Paciente } from '@/lib/pacientesApi';
 
-export interface Paciente {
-  id: number;
-  nombre: string;
-  dni: string;
-  telefono: string;
-  createdAt: string;
-}
+
 
 export function usePacientes() {
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
@@ -21,7 +15,7 @@ export function usePacientes() {
     setError(null);
 
     try {
-      const data = await apiClient.get<Paciente[]>('/pacientes');
+      const data = await pacientesApi.list();
       setPacientes(data);
     } catch (err) {
       setError('Error al cargar pacientes');
@@ -34,15 +28,15 @@ export function usePacientes() {
     fetchPacientes();
   }, [fetchPacientes]);
 
-  // 🔜 Mutaciones (preparadas)
+  // 🔜 Mutaciones
   const createPaciente = async (payload: Omit<Paciente, 'id' | 'createdAt'>) => {
-    const nuevo = await apiClient.post<Paciente>('/pacientes', payload);
+    const nuevo = await pacientesApi.create(payload);
     setPacientes((prev) => [...prev, nuevo]);
     return nuevo;
   };
 
   const updatePaciente = async (id: number, payload: Partial<Paciente>) => {
-    const actualizado = await apiClient.put<Paciente>(`/pacientes/${id}`, payload);
+    const actualizado = await pacientesApi.update(id, payload);
     setPacientes((prev) =>
       prev.map((p) => (p.id === id ? actualizado : p))
     );
@@ -50,7 +44,7 @@ export function usePacientes() {
   };
 
   const deletePaciente = async (id: number) => {
-    await apiClient.delete(`/pacientes/${id}`);
+    await pacientesApi.remove(id);
     setPacientes((prev) => prev.filter((p) => p.id !== id));
   };
 

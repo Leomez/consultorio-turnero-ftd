@@ -38,13 +38,13 @@ export interface AuthResponse {
 /**
  * Información de un paciente registrado
  */
-export interface Paciente {
-  id: number;
-  nombre: string;
-  dni: string;
-  telefono: string;
-  createdAt: string;
-}
+// export interface Paciente {
+//   id: number;
+//   nombre: string;
+//   dni: string;
+//   telefono: string;
+//   createdAt: string;
+// }
 
 /**
  * Respuesta genérica de la API
@@ -202,6 +202,36 @@ class ApiClient {
     return response.json();
   }
 
+
+    /**
+   * Realiza una solicitud PATCH con reintentos en caso de token expirado
+   */
+  async patch<T>(endpoint: string, body: any): Promise<T> {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'PATCH',
+      headers: this.getHeaders(),
+      body: JSON.stringify(body),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        const refreshed = await this.refreshAccessToken();
+        if (refreshed) {
+          return this.patch(endpoint, body);
+        }
+        this.clearTokens();
+        window.location.href = '/login';
+        throw new Error('Sesión expirada');
+      }
+
+      return this.handleError(response);
+    }
+
+    return response.json();
+  }
+
+
   /**  Realiza una solicitud DELETE con reintentos en caso de token expirado
      * @template T - Tipo de datos que retorna la API
      * @param endpoint 
@@ -338,21 +368,21 @@ class ApiClient {
     return !!this.getAccessToken();
   }
 
-  getPacientes(): Promise<Paciente[]> {
-    return this.get<Paciente[]>('/pacientes');
-  }
+  // getPacientes(): Promise<Paciente[]> {
+  //   return this.get<Paciente[]>('/pacientes');
+  // }
 
-  createPaciente(data: Omit<Paciente, 'id' | 'createdAt'>): Promise<Paciente> {
-    return this.post<Paciente>('/pacientes', data);
-  }
+  // createPaciente(data: Omit<Paciente, 'id' | 'createdAt'>): Promise<Paciente> {
+  //   return this.post<Paciente>('/pacientes', data);
+  // }
 
-  updatePaciente(id: number, data: Partial<Paciente>): Promise<Paciente> {
-    return this.post<Paciente>(`/pacientes/${id}`, data);
-  }
+  // updatePaciente(id: number, data: Partial<Paciente>): Promise<Paciente> {
+  //   return this.put<Paciente>(`/pacientes/${id}`, data);
+  // }
 
-  deletePaciente(id: number): Promise<void> {
-    return this.post<void>(`/pacientes/${id}/delete`, {});
-  }
+  // deletePaciente(id: number): Promise<void> {
+  //   return this.delete<void>(`/pacientes/${id}`);
+  // }
 }
 
 /**
