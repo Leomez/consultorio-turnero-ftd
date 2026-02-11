@@ -20,6 +20,14 @@ export default function DashboardPage() {
     return null;
   }
 
+  const ingresosFormatted =
+    stats && !isNaN(stats.ingresosMes)
+      ? stats.ingresosMes.toLocaleString("es-AR", {
+          style: "currency",
+          currency: "ARS",
+        })
+      : "$ 0";
+
   const cards =
     stats && !error
       ? [
@@ -27,6 +35,8 @@ export default function DashboardPage() {
           { label: "Turnos hoy", value: stats.turnosHoy },
           { label: "Pendientes hoy", value: stats.turnosPendientesHoy },
           { label: "Próximos turnos", value: stats.turnosFuturos },
+          { label: "Ingresos mes", value: ingresosFormatted },
+          { label: "Pagos pendientes", value: stats.pagosPendientes },
         ]
       : [];
 

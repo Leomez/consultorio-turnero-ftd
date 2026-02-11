@@ -5,6 +5,8 @@ export interface DashboardStats {
   turnosHoy: number;
   turnosPendientesHoy: number;
   turnosFuturos: number;
+  ingresosMes: number;
+  pagosPendientes: number;
 }
 
 export const dashboardApi = {
