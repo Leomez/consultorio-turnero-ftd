@@ -4,31 +4,45 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { DashboardStatsSkeleton } from "@/components/skeletons/DashboardStatsSkeleton";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
 
 export default function DashboardPage() {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
+  const { stats, loading: statsLoading, error } = useDashboardStats();
 
-  const stats = [
-    { label: 'Pacientes', value: 124 },
-    { label: 'Turnos hoy', value: 18 },
-    { label: 'Ingresos mes', value: '$ 1.250.000' },
-    { label: 'Pagos pendientes', value: 6 },
-  ];
-
-  if (loading) {
-    return <div>Cargando...</div>;
+  if (loading || statsLoading) {
+    return <DashboardStatsSkeleton />;
   }
 
-  if (!isAuthenticated) router.push("/login");
+  if (!isAuthenticated) {
+    router.push("/login");
+    return null;
+  }
+
+  const cards =
+    stats && !error
+      ? [
+          { label: "Pacientes", value: stats.totalPacientes },
+          { label: "Turnos hoy", value: stats.turnosHoy },
+          { label: "Pendientes hoy", value: stats.turnosPendientesHoy },
+          { label: "Próximos turnos", value: stats.turnosFuturos },
+        ]
+      : [];
 
   return (
-
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
+
+      {error && (
+        <div className="bg-white p-3 rounded-lg text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
       <Suspense fallback={<DashboardStatsSkeleton />}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat) => (
+          {cards.map((stat) => (
             <div
               key={stat.label}
               className="bg-white rounded-xl shadow-sm p-4"
@@ -40,6 +54,5 @@ export default function DashboardPage() {
         </div>
       </Suspense>
     </div>
-
   );
 }

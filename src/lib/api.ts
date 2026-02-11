@@ -136,6 +136,10 @@ class ApiClient {
       return this.handleError(response);
     }
 
+    if (response.status === 204) {
+      return null as unknown as T; // Retorna un objeto vacío si no hay contenido
+    }
+
     return response.json();
   }
 
@@ -165,6 +169,10 @@ class ApiClient {
       }
 
       return this.handleError(response);
+    }
+
+    if (response.status === 204) {
+      return null as unknown as T; // Retorna null si no hay contenido
     }
 
     return response.json();
@@ -197,6 +205,10 @@ class ApiClient {
       }
 
       return this.handleError(response);
+    }
+
+    if (response.status === 204) {
+      return null as unknown as T; // Retorna null si no hay contenido
     }
 
     return response.json();
@@ -256,6 +268,10 @@ class ApiClient {
       }
 
       return this.handleError(response);
+    }
+
+    if (response.status === 204) {
+      return null as unknown as T; // Retorna null si no hay contenido
     }
 
     return response.json();
